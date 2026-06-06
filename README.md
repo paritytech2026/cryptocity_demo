@@ -12,7 +12,7 @@ RentVerse is a modern real estate investment platform that combines traditional 
 </div>
 
 ---
-![Dashboard Overview](public/main.png)
+![Dashboard Overview](public/home.jpg)
 ---
 
 # 🌐 RentVerse Demo
@@ -33,9 +33,7 @@ RentVerse is a demo platform showcasing a next-generation real-estate experience
 
 ---
 
-![Dashboard Overview](public/sub1.png)
----
-![Dashboard Overview](public/sub2.png)
+![Dashboard Overview](public/client.png)
 ---
 
 ## 🧩 Core Pages and Components
