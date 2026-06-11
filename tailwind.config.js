@@ -1,4 +1,5 @@
 export default {
+  darkMode: 'class',
   content: [
     "./index.html",
     "./src/**/*.{js,jsx}"
@@ -6,6 +7,23 @@ export default {
   theme: {
     extend: {
       colors: {
+        "dark-primary": {
+          '400': '#60b4ff',
+          '500': '#3b9dff',
+          '600': '#1a85ff',
+        },
+        "dark-secondary": {
+          '50':  '#0f172a',
+          '100': '#1e293b',
+          '200': '#334155',
+          '300': '#475569',
+          '400': '#64748b',
+          '500': '#94a3b8',
+          '600': '#cbd5e1',
+          '700': '#e2e8f0',
+          '800': '#f1f5f9',
+          '900': '#f8fafc',
+        },
         "primary": {
           '50': '#edf9ff',
           '100': '#d6f0ff',

@@ -1,9 +1,44 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FiMenu, FiX } from 'react-icons/fi';
+import { FiMenu, FiX, FiSun, FiMoon } from 'react-icons/fi';
+import { useWeb3 } from '../../context/Web3Context';
+import { useNativeToken } from '../../hooks/useNativeToken';
+import { useTheme } from '../../hooks/useTheme';
+import WalletModal from './WalletModal';
+import ErrorToast from './ErrorToast';
+
+const trimAddress = (addr) => `${addr.slice(0, 6)}...${addr.slice(-4)}`;
 
 function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [toastMsg, setToastMsg] = useState('');
+  const [toastOpen, setToastOpen] = useState(false);
+  const { isDark, toggleDark } = useTheme();
+  const { account, isConnected, connect, disconnect, provider } = useWeb3();
+  const ethBalance = useNativeToken(provider, account);
+
+  const showError = (msg) => {
+    setToastMsg(msg);
+    setToastOpen(true);
+    setTimeout(() => setToastOpen(false), 4000);
+  };
+
+  const handleWalletClick = () => {
+    if (isConnected) {
+      setIsModalOpen(true);
+    } else {
+      connect().catch((err) => {
+        if (!window.ethereum) {
+          showError('MetaMask is not installed. Please install it to connect.');
+        } else if (err?.code === 4001) {
+          showError('Connection rejected. Please approve the request in MetaMask.');
+        } else {
+          showError(err?.message || 'Failed to connect wallet.');
+        }
+      });
+    }
+  };
 
   const navigation = [
     { name: 'Home', href: '/' },
@@ -14,8 +49,9 @@ function Navbar() {
   ];
 
   return (
-    <nav className="bg-white shadow-sm">
-      <div className="container">
+    <>
+      <nav className="bg-white shadow-sm">
+        <div className="container">
         <div className="flex justify-between h-16">
           <div className="flex">
             <Link to="/" className="flex items-center">
@@ -39,9 +75,18 @@ function Navbar() {
               </Link>
             ))}
             <button
-              className="btn"
+              onClick={toggleDark}
+              className="text-secondary-600 hover:text-primary-600 p-2 rounded-md"
+              aria-label="Toggle dark mode"
             >
-              Connect
+              {isDark ? <FiSun size={20} /> : <FiMoon size={20} />}
+            </button>
+            <button
+              onClick={handleWalletClick}
+              className="btn"
+              title={isConnected ? 'Click to disconnect' : 'Connect wallet'}
+            >
+              {isConnected ? trimAddress(account) : 'Connect'}
             </button>
           </div>
 
@@ -72,16 +117,34 @@ function Navbar() {
                 </Link>
               ))}
               <button
-                className="block px-3 py-2 text-base font-medium text-white bg-primary-600 hover:bg-primary-700"
-                onClick={() => setIsOpen(false)}
+                onClick={toggleDark}
+                className="flex items-center gap-2 px-3 py-2 text-base font-medium text-secondary-600 hover:text-primary-600"
               >
-                Connect
+                {isDark ? <FiSun size={18} /> : <FiMoon size={18} />}
+                {isDark ? 'Light Mode' : 'Dark Mode'}
+              </button>
+              <button
+                className="block px-3 py-2 text-base font-medium text-white bg-primary-600 hover:bg-primary-700"
+                onClick={() => { handleWalletClick(); setIsOpen(false); }}
+              >
+                {isConnected ? trimAddress(account) : 'Connect'}
               </button>
             </div>
           </div>
         )}
-      </div>
-    </nav>
+        </div>
+      </nav>
+      <ErrorToast isOpen={toastOpen} message={toastMsg} onClose={() => setToastOpen(false)} />
+      {isConnected && (
+        <WalletModal
+          isOpen={isModalOpen}
+          toggle={() => setIsModalOpen(false)}
+          account={account}
+          balance={ethBalance}
+          onDisconnect={disconnect}
+        />
+      )}
+    </>
   );
 }
 
